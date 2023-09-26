@@ -32,37 +32,40 @@ Goals:
 from typing import Dict, List, Any
 from diction.parser import parse
 
-JSONLike = Dict | List
-JSONMaybe = JSONLike | Any
+JSONLike = dict | list
+JSONType = {dict, list}
+JSONMaybe = JSONLike | None
 
 
 def diction(data: JSONLike, query: str) -> JSONMaybe:
-    if not isinstance(data, JSONLike):
+    data_type = type(data)
+    if data_type not in JSONType:
         raise TypeError(f'Type `{type(data)}` is not in the parseable types (dict, list)')
 
-    layers = parse(query)
-    if layers is None:
-        # Return empty container
-        return type(data)()
+    commands = parse(query)
+    if not commands:
+        # Empty query:
+        #  return full container
+        if type(commands) == data_type:
+            return data
 
-    body = data
+        # Bad query:
+        #  return empty container
+        return data_type()
 
-    # body = {'i' : {'1': [{'3': '3'}, '4'], '2': '2'} }
-    # layers = [['i'], ['1']]
-    # for each element in outer_list, get object
-    # for each object, subset using inner list
+    # Good query
+    return dict(traverse(data, commands))
 
-    {k: subset(layer) for layer in layers}
-    for layer in layers:
-        lyr = {k: layer[k] for k in ('l', 'm', 'n')}
-        for key in layer:
+def traverse(d: dict, cmd: dict):
+    for key, next_cmd in cmd.items():
+        if not next_cmd:
+            yield key, d[key]
+        else:
+            yield key, dict(traverse(d[key], next_cmd))
 
-            # Merge key access w/ another
-            body = body[key]
 
-    return body
-
-def subset(d: dict, keys: [str]):
-    return {k: d[k] for k in keys}
-
-def merge()
+if __name__ == '__main__':
+    dct = {'a': {'b': 'c'}, 'd': 'e', 'f': 'g'}
+    cmd = {'a': {'b': {}}, 'd': {}}
+    out = {'a': {'b': 'c'}, 'd': 'e'}
+    assert dict(traverse(dct, cmd)) == out
