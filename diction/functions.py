@@ -2,6 +2,7 @@
 Things to possibly conform to:
 JSON Spec https://www.rfc-editor.org/rfc/rfc7159.txt
 GraphQL Spec https://spec.graphql.org/October2021/
+GraphQL query explanations: https://graphql.org/learn/queries/
 
 Allows querying of nested dictionaries and lists using a DSL similar to GraphQL
 
@@ -33,13 +34,13 @@ from typing import Dict, List, Any
 from diction.parser import parse
 
 JSONLike = dict | list
-JSONType = {dict, list}
+json_types = {dict, list}
 JSONMaybe = JSONLike | None
 
 
-def diction(data: JSONLike, query: str) -> JSONMaybe:
+def graphql(data: JSONLike, query: str) -> JSONMaybe:
     data_type = type(data)
-    if data_type not in JSONType:
+    if data_type not in json_types:
         raise TypeError(f'Type `{type(data)}` is not in the parseable types (dict, list)')
 
     commands = parse(query)
@@ -62,10 +63,3 @@ def traverse(d: dict, cmd: dict):
             yield key, d[key]
         else:
             yield key, dict(traverse(d[key], next_cmd))
-
-
-if __name__ == '__main__':
-    dct = {'a': {'b': 'c'}, 'd': 'e', 'f': 'g'}
-    cmd = {'a': {'b': {}}, 'd': {}}
-    out = {'a': {'b': 'c'}, 'd': 'e'}
-    assert dict(traverse(dct, cmd)) == out

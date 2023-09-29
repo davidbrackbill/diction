@@ -1,5 +1,8 @@
 from ply.yacc import yacc
 from diction.lexer import tokens
+
+"""See `ply` documentation at https://github.com/dabeaz/ply/blob/master/doc/ply.md"""
+
 def p_val(p):
     "val : LBRACKET pairs RBRACKET"
     p[0] = p[2]
