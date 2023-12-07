@@ -1,8 +1,8 @@
 # Introduction
 
-Ever received a nested JSON payload and wish there was an easy way to access just the fields you need?
+Ever received a nested JSON response and wish there was an easy way to access just the fields you need?
 
-Diction lets you traverse Python dictionaries using GraphQL:
+Diction lets you traverse Python dictionaries using GraphQL strings:
 
 ```python
 from diction import graphql
